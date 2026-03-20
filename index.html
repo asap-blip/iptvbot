@@ -439,7 +439,7 @@
   <div class="chat">
     <div class="messages" id="messages"></div>
     <div class="input-row">
-      <textarea class="msg-input" id="input" placeholder="e.g. FIRST NAME // LAST NAME // PACKAGE // TIME" rows="1"
+      <textarea class="msg-input" id="input" placeholder="e.g. FIRSTNAME//LASTNAME//PACKAGE//TIME" rows="1"
         onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
       <button class="send-btn" id="send-btn" onclick="sendMessage()">
         <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
@@ -495,7 +495,7 @@ function setMode(m) {
   document.getElementById('tab-order').className = 'tab' + (m === 'order' ? ' active' : '');
   document.getElementById('tab-complete').className = 'tab' + (m === 'complete' ? ' active' : '');
   document.getElementById('input').placeholder = m === 'order'
-    ? 'e.g. FIRST NAME // LAST NAME // PACKAGE // TIME'
+    ? 'e.g. FIRSTNAME//LASTNAME//PACKAGE//TIME'
     : 'Paste the Order Completed message here';
   addBot(
     m === 'order' ? 'Ready. Type a new order loosely.' : 'Paste the completed order from your provider.',
