@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPTV Bot</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0e0f;
+    --surface: #1a1a1c;
+    --surface2: #242426;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0f0ee;
+    --muted: #888884;
+    --accent: #00e589;
+    --accent-dim: rgba(0,229,137,0.12);
+    --accent-dim2: rgba(0,229,137,0.06);
+    --blue: #4a9eff;
+    --blue-dim: rgba(74,158,255,0.12);
+    --red: #ff5f57;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2px;
+    margin-bottom: 2px;
+  }
+
+  .logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.3s;
+  }
+  .status-dot.ready { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+
+  /* API Key bar */
+  .api-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .api-label {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .api-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .api-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-size: 13px;
+    font-family: var(--mono);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .api-input:focus { border-color: var(--border2); }
+  .api-input::placeholder { color: var(--muted); }
+
+  .api-btn {
+    background: var(--accent-dim);
+    border: 1px solid rgba(0,229,137,0.25);
+    border-radius: var(--radius-sm);
+    padding: 8px 14px;
+    font-size: 13px;
+    font-family: var(--font);
+    font-weight: 500;
+    color: var(--accent);
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .api-btn:hover { background: rgba(0,229,137,0.2); }
+
+  .api-feedback {
+    font-size: 12px;
+    font-family: var(--mono);
+    display: none;
+  }
+  .api-feedback.ok { color: var(--accent); display: block; }
+  .api-feedback.err { color: var(--red); display: block; }
+
+  /* Mode tabs */
+  .tabs {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 4px;
+    gap: 4px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 8px;
+    border-radius: calc(var(--radius) - 4px);
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-family: var(--font);
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab.active {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border2);
+  }
+
+  /* Chat window */
+  .chat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .messages {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 320px;
+    max-height: 380px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+  }
+
+  .msg {
+    max-width: 88%;
+    padding: 10px 13px;
+    border-radius: 14px;
+    font-size: 14px;
+    line-height: 1.55;
+    animation: fadeUp 0.2s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.user {
+    align-self: flex-end;
+    background: var(--accent-dim2);
+    border: 1px solid rgba(0,229,137,0.18);
+    color: var(--text);
+    border-bottom-right-radius: 4px;
+  }
+
+  .msg.bot {
+    align-self: flex-start;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-bottom-left-radius: 4px;
+  }
+
+  .msg pre {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    white-space: pre-wrap;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    margin-top: 8px;
+    color: var(--accent);
+    line-height: 1.6;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-family: var(--mono);
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .tag-order { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,229,137,0.2); }
+  .tag-complete { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(74,158,255,0.2); }
+
+  .confirm-btns {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .confirm-btns button {
+    flex: 1;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-family: var(--font);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--muted);
+  }
+  .confirm-btns button:hover { background: var(--surface); color: var(--text); }
+  .confirm-btns button.yes {
+    border-color: rgba(0,229,137,0.3);
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+  .confirm-btns button.yes:hover { background: rgba(0,229,137,0.2); }
+
+  .typing-dots {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 2px 0;
+  }
+  .typing-dots span {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--muted);
+    animation: blink 1.2s infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,60%,100%{opacity:0.3} 30%{opacity:1} }
+
+  /* Input */
+  .input-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    padding: 10px 12px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .msg-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 9px 15px;
+    font-size: 14px;
+    font-family: var(--font);
+    color: var(--text);
+    resize: none;
+    outline: none;
+    max-height: 100px;
+    line-height: 1.4;
+    transition: border-color 0.2s;
+  }
+  .msg-input:focus { border-color: var(--border2); }
+  .msg-input::placeholder { color: var(--muted); }
+
+  .send-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .send-btn:hover { opacity: 0.88; }
+  .send-btn:active { transform: scale(0.93); }
+  .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .send-btn svg { width: 16px; height: 16px; fill: #0e0e0f; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <span class="logo">IPTV_BOT</span>
+    <div class="status-dot" id="status-dot"></div>
+  </div>
+
+  <div class="api-section">
+    <span class="api-label">Anthropic API Key</span>
+    <div class="api-row">
+      <input type="password" class="api-input" id="api-key" placeholder="sk-ant-..." />
+      <button class="api-btn" onclick="saveKey()">Set key</button>
+    </div>
+    <div class="api-feedback" id="api-feedback"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-order" onclick="setMode('order')">New order</button>
+    <button class="tab" id="tab-complete" onclick="setMode('complete')">Order complete</button>
+  </div>
+
+  <div class="chat">
+    <div class="messages" id="messages"></div>
+    <div class="input-row">
+      <textarea class="msg-input" id="input" placeholder="e.g. dylan v english 3 months" rows="1"
+        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+let apiKey = '';
+let mode = 'order';
+let pendingOrder = null;
+
+function saveKey() {
+  const val = document.getElementById('api-key').value.trim();
+  const fb = document.getElementById('api-feedback');
+  if (!val.startsWith('sk-ant-')) {
+    fb.textContent = '✗ Key should start with sk-ant-';
+    fb.className = 'api-feedback err';
+    return;
+  }
+  apiKey = val;
+  document.getElementById('api-key').value = '●'.repeat(20);
+  fb.textContent = '✓ Key set — lives in memory only, not saved anywhere';
+  fb.className = 'api-feedback ok';
+  document.getElementById('status-dot').className = 'status-dot ready';
+}
+
+function setMode(m) {
+  mode = m;
+  pendingOrder = null;
+  document.getElementById('tab-order').className = 'tab' + (m === 'order' ? ' active' : '');
+  document.getElementById('tab-complete').className = 'tab' + (m === 'complete' ? ' active' : '');
+  document.getElementById('input').placeholder = m === 'order'
+    ? 'e.g. dylan v english 3 months'
+    : 'Paste the Order Completed message here';
+  addBot(
+    m === 'order' ? 'Ready. Type a new order loosely.' : 'Paste the completed order from your provider.',
+    m === 'order' ? 'tag-order' : 'tag-complete'
+  );
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function addUser(text) {
+  const msgs = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'msg user';
+  d.textContent = text;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addBot(html, tag) {
+  const msgs = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'msg bot';
+  d.innerHTML = tag ? `<span class="tag ${tag}"></span>${html}` : html;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+  return d;
+}
+
+function addTyping() {
+  const msgs = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'msg bot';
+  d.id = 'typing';
+  d.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing');
+  if (t) t.remove();
+}
+
+async function callClaude(prompt) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 400,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || 'API error ' + res.status);
+  }
+  const data = await res.json();
+  return data.content[0].text.replace(/```json|```/g, '').trim();
+}
+
+async function sendMessage() {
+  const input = document.getElementById('input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  if (!apiKey) {
+    addBot('Set your API key above first.');
+    return;
+  }
+
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('send-btn').disabled = true;
+  addUser(text);
+  addTyping();
+
+  try {
+    mode === 'order' ? await parseOrder(text) : await parseComplete(text);
+  } catch(e) {
+    removeTyping();
+    addBot('Error: ' + e.message);
+  }
+
+  document.getElementById('send-btn').disabled = false;
+  document.getElementById('input').focus();
+}
+
+async function parseOrder(text) {
+  const raw = await callClaude(`You are an IPTV order parser. Extract from this loose input: "${text}"
+
+Return ONLY valid JSON, nothing else:
+{"first_name":"string","last_name":"string","package":"Full or English Only","duration":"12 months or 3 months or Free Trial","missing":[]}
+
+Rules:
+- english/eng/english only → "English Only"
+- full → "Full"
+- 12/year/12m → "12 months"
+- 3/3m → "3 months"
+- trial/free → "Free Trial"
+- Add field name to missing array only if genuinely not present`);
+
+  removeTyping();
+  const parsed = JSON.parse(raw);
+
+  if (parsed.missing && parsed.missing.length > 0) {
+    addBot(`Missing: <strong>${parsed.missing.join(', ')}</strong> — can you add that?`);
+    return;
+  }
+
+  pendingOrder = parsed;
+  const form = `*Order Form*\nClient name: ${parsed.first_name} ${parsed.last_name}\nPackages: ${parsed.package}\nSub: ${parsed.duration}`;
+  const el = addBot(`<span class="tag tag-order">New order</span>Here's your order form:<pre>${form}</pre>`);
+  const btns = document.createElement('div');
+  btns.className = 'confirm-btns';
+  btns.innerHTML = '<button class="yes" onclick="confirmOrder(this)">Yes, copy it</button><button onclick="cancelOrder()">Edit</button>';
+  el.appendChild(btns);
+}
+
+function confirmOrder(btn) {
+  if (!pendingOrder) return;
+  const form = `*Order Form*\nClient name: ${pendingOrder.first_name} ${pendingOrder.last_name}\nPackages: ${pendingOrder.package}\nSub: ${pendingOrder.duration}`;
+  navigator.clipboard.writeText(form).then(() => {
+    btn.parentElement.innerHTML = '<span style="font-size:12px;font-family:var(--mono);color:var(--accent);">✓ Copied to clipboard</span>';
+    addBot('Send it to your provider. When they reply, switch to <strong>Order complete</strong> mode.');
+  }).catch(() => {
+    btn.parentElement.innerHTML = '<span style="font-size:12px;font-family:var(--mono);color:var(--red);">Copy manually ↑</span>';
+  });
+  pendingOrder = null;
+}
+
+function cancelOrder() {
+  pendingOrder = null;
+  addBot('No problem — type it again with the fix.');
+}
+
+async function parseComplete(text) {
+  const raw = await callClaude(`Extract data from this IPTV order completion message: "${text}"
+
+Return ONLY valid JSON, nothing else:
+{"client_name":"string","package":"string","start_date":"string","mac_address":"string","duration_months":0,"missing":[]}
+
+- duration_months: infer from package name if possible (Full=12, English Only=3, trial=0), else 0
+- Add field name to missing array if not found`);
+
+  removeTyping();
+  const parsed = JSON.parse(raw);
+
+  if (parsed.missing && parsed.missing.length > 0) {
+    addBot(`Couldn't find: <strong>${parsed.missing.join(', ')}</strong> — check the message.`);
+    return;
+  }
+
+  const expiry = calcExpiry(parsed.start_date, parsed.duration_months);
+  const lines = [
+    `Client:   ${parsed.client_name}`,
+    `Package:  ${parsed.package}`,
+    `Start:    ${parsed.start_date}`,
+    `MAC:      ${parsed.mac_address}`,
+    expiry ? `Expiry:   ${expiry}` : null
+  ].filter(Boolean).join('\n');
+
+  addBot(`<span class="tag tag-complete">Order complete</span>Extracted:<pre>${lines}</pre>Ready to log to your sheet.`);
+}
+
+function calcExpiry(dateStr, months) {
+  if (!months) return null;
+  try {
+    const p = dateStr.split('/');
+    if (p.length !== 3) return null;
+    const d = new Date(`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`);
+    if (isNaN(d)) return null;
+    d.setMonth(d.getMonth() + months);
+    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+  } catch { return null; }
+}
+
+addBot('Set your API key above to get started.', 'tag-order');
+</script>
+</body>
+</html>
