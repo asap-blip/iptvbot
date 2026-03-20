@@ -768,11 +768,12 @@ async function logToSheet(btn) {
   };
 
   try {
-    await fetch(SHEET_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+const form = new FormData();
+form.append('data', JSON.stringify(payload));
+await fetch(SHEET_URL, {
+  method: 'POST',
+  body: form
+});
 
     // Optimistically update local count
     seatData[selectedAccount] = (seatData[selectedAccount] || 0) + 1;
