@@ -12,6 +12,7 @@
     --bg: #0e0e0f;
     --surface: #1a1a1c;
     --surface2: #242426;
+    --surface3: #2e2e30;
     --border: rgba(255,255,255,0.08);
     --border2: rgba(255,255,255,0.14);
     --text: #f0f0ee;
@@ -21,7 +22,10 @@
     --accent-dim2: rgba(0,229,137,0.06);
     --blue: #4a9eff;
     --blue-dim: rgba(74,158,255,0.12);
+    --yellow: #f5c842;
+    --yellow-dim: rgba(245,200,66,0.12);
     --red: #ff5f57;
+    --red-dim: rgba(255,95,87,0.12);
     --font: 'DM Sans', sans-serif;
     --mono: 'DM Mono', monospace;
     --radius: 12px;
@@ -54,7 +58,6 @@
     padding: 0 2px;
     margin-bottom: 2px;
   }
-
   .logo {
     font-family: var(--mono);
     font-size: 13px;
@@ -62,17 +65,14 @@
     color: var(--accent);
     letter-spacing: 0.05em;
   }
-
   .status-dot {
-    width: 7px;
-    height: 7px;
+    width: 7px; height: 7px;
     border-radius: 50%;
     background: var(--muted);
     transition: background 0.3s;
   }
   .status-dot.ready { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
 
-  /* API Key bar */
   .api-section {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -82,7 +82,6 @@
     flex-direction: column;
     gap: 8px;
   }
-
   .api-label {
     font-size: 11px;
     font-family: var(--mono);
@@ -90,12 +89,7 @@
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
-
-  .api-row {
-    display: flex;
-    gap: 8px;
-  }
-
+  .api-row { display: flex; gap: 8px; }
   .api-input {
     flex: 1;
     background: var(--surface2);
@@ -110,7 +104,6 @@
   }
   .api-input:focus { border-color: var(--border2); }
   .api-input::placeholder { color: var(--muted); }
-
   .api-btn {
     background: var(--accent-dim);
     border: 1px solid rgba(0,229,137,0.25);
@@ -125,16 +118,10 @@
     white-space: nowrap;
   }
   .api-btn:hover { background: rgba(0,229,137,0.2); }
-
-  .api-feedback {
-    font-size: 12px;
-    font-family: var(--mono);
-    display: none;
-  }
+  .api-feedback { font-size: 12px; font-family: var(--mono); display: none; }
   .api-feedback.ok { color: var(--accent); display: block; }
   .api-feedback.err { color: var(--red); display: block; }
 
-  /* Mode tabs */
   .tabs {
     display: flex;
     background: var(--surface);
@@ -143,7 +130,6 @@
     padding: 4px;
     gap: 4px;
   }
-
   .tab {
     flex: 1;
     padding: 8px;
@@ -163,7 +149,6 @@
     border: 1px solid var(--border2);
   }
 
-  /* Chat window */
   .chat {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -172,33 +157,29 @@
     display: flex;
     flex-direction: column;
   }
-
   .messages {
     padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 10px;
     min-height: 320px;
-    max-height: 380px;
+    max-height: 440px;
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--border2) transparent;
   }
-
   .msg {
-    max-width: 88%;
+    max-width: 92%;
     padding: 10px 13px;
     border-radius: 14px;
     font-size: 14px;
     line-height: 1.55;
     animation: fadeUp 0.2s ease;
   }
-
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
   }
-
   .msg.user {
     align-self: flex-end;
     background: var(--accent-dim2);
@@ -206,7 +187,6 @@
     color: var(--text);
     border-bottom-right-radius: 4px;
   }
-
   .msg.bot {
     align-self: flex-start;
     background: var(--surface2);
@@ -214,7 +194,6 @@
     color: var(--text);
     border-bottom-left-radius: 4px;
   }
-
   .msg pre {
     font-family: var(--mono);
     font-size: 12.5px;
@@ -227,7 +206,6 @@
     color: var(--accent);
     line-height: 1.6;
   }
-
   .tag {
     display: inline-block;
     font-size: 10px;
@@ -267,12 +245,123 @@
   }
   .confirm-btns button.yes:hover { background: rgba(0,229,137,0.2); }
 
-  .typing-dots {
+  /* Seat picker */
+  .seat-picker {
+    margin-top: 12px;
     display: flex;
-    gap: 4px;
-    align-items: center;
-    padding: 2px 0;
+    flex-direction: column;
+    gap: 5px;
   }
+  .seat-picker-label {
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 3px;
+  }
+  .seat-account {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .seat-account:hover:not(.full) {
+    border-color: var(--border2);
+    background: rgba(255,255,255,0.04);
+  }
+  .seat-account.selected {
+    border-color: rgba(0,229,137,0.4);
+    background: var(--accent-dim);
+  }
+  .seat-account.full { opacity: 0.38; cursor: not-allowed; }
+  .seat-email {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--text);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .seat-dots {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .seat-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .seat-dot.empty {
+    background: transparent;
+    border: 1px solid var(--border2);
+  }
+  .seat-count {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    flex-shrink: 0;
+    min-width: 36px;
+    text-align: right;
+  }
+  .seat-count.warn { color: var(--yellow); }
+  .seat-count.red { color: var(--red); }
+
+  .mutual-row {
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .mutual-label {
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .mutual-input {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: var(--font);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .mutual-input:focus { border-color: var(--border2); }
+  .mutual-input::placeholder { color: var(--muted); }
+
+  .log-btn {
+    margin-top: 6px;
+    width: 100%;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(74,158,255,0.3);
+    background: var(--blue-dim);
+    color: var(--blue);
+    font-size: 13px;
+    font-family: var(--font);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .log-btn:hover { background: rgba(74,158,255,0.22); }
+  .log-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .typing-dots { display: flex; gap: 4px; align-items: center; padding: 2px 0; }
   .typing-dots span {
     width: 5px; height: 5px;
     border-radius: 50%;
@@ -283,7 +372,6 @@
   .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
   @keyframes blink { 0%,60%,100%{opacity:0.3} 30%{opacity:1} }
 
-  /* Input */
   .input-row {
     display: flex;
     gap: 8px;
@@ -292,7 +380,6 @@
     border-top: 1px solid var(--border);
     background: var(--surface);
   }
-
   .msg-input {
     flex: 1;
     background: var(--surface2);
@@ -310,7 +397,6 @@
   }
   .msg-input:focus { border-color: var(--border2); }
   .msg-input::placeholder { color: var(--muted); }
-
   .send-btn {
     width: 38px; height: 38px;
     border-radius: 50%;
@@ -363,9 +449,28 @@
 </div>
 
 <script>
+const SHEET_URL = 'https://script.google.com/a/macros/pasawworks.com/s/AKfycbyIXzJnzx74r4GpHjPoFMQMmjO6sNg9GHVjK8OScyZ9oGwIajzMyvgUh_6bbwaM-aKR/exec';
+const MAX_SEATS = 5;
+const DEFAULT_ACCOUNTS = ['ststvn@pm.me'];
+
 let apiKey = '';
 let mode = 'order';
 let pendingOrder = null;
+let pendingComplete = null;
+let selectedAccount = null;
+let seatData = {};
+
+fetchSeats();
+
+async function fetchSeats() {
+  try {
+    const res = await fetch(SHEET_URL);
+    const data = await res.json();
+    seatData = data.counts || {};
+  } catch(e) {
+    seatData = {};
+  }
+}
 
 function saveKey() {
   const val = document.getElementById('api-key').value.trim();
@@ -385,6 +490,8 @@ function saveKey() {
 function setMode(m) {
   mode = m;
   pendingOrder = null;
+  pendingComplete = null;
+  selectedAccount = null;
   document.getElementById('tab-order').className = 'tab' + (m === 'order' ? ' active' : '');
   document.getElementById('tab-complete').className = 'tab' + (m === 'complete' ? ' active' : '');
   document.getElementById('input').placeholder = m === 'order'
@@ -466,11 +573,7 @@ async function sendMessage() {
   const input = document.getElementById('input');
   const text = input.value.trim();
   if (!text) return;
-
-  if (!apiKey) {
-    addBot('Set your API key above first.');
-    return;
-  }
+  if (!apiKey) { addBot('Set your API key above first.'); return; }
 
   input.value = '';
   input.style.height = 'auto';
@@ -544,6 +647,7 @@ Return ONLY valid JSON, nothing else:
 {"client_name":"string","package":"string","start_date":"string","mac_address":"string","duration_months":0,"missing":[]}
 
 - duration_months: infer from package name if possible (Full=12, English Only=3, trial=0), else 0
+- start_date format: DD/MM/YYYY
 - Add field name to missing array if not found`);
 
   removeTyping();
@@ -554,7 +658,10 @@ Return ONLY valid JSON, nothing else:
     return;
   }
 
+  pendingComplete = parsed;
   const expiry = calcExpiry(parsed.start_date, parsed.duration_months);
+  pendingComplete.expiry_date = expiry || '—';
+
   const lines = [
     `Client:   ${parsed.client_name}`,
     `Package:  ${parsed.package}`,
@@ -563,7 +670,126 @@ Return ONLY valid JSON, nothing else:
     expiry ? `Expiry:   ${expiry}` : null
   ].filter(Boolean).join('\n');
 
-  addBot(`<span class="tag tag-complete">Order complete</span>Extracted:<pre>${lines}</pre>Ready to log to your sheet.`);
+  await fetchSeats();
+
+  const el = addBot(`<span class="tag tag-complete">Order complete</span>Extracted:<pre>${lines}</pre>`);
+  el.appendChild(buildSeatPicker());
+
+  document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+}
+
+function buildSeatPicker() {
+  const wrap = document.createElement('div');
+  wrap.className = 'seat-picker';
+  wrap.innerHTML = `<div class="seat-picker-label">Assign TiviMate Account</div>`;
+
+  // Merge default accounts with any already in sheet
+  const allAccounts = new Set(DEFAULT_ACCOUNTS);
+  Object.keys(seatData).forEach(a => allAccounts.add(a));
+  const accounts = Array.from(allAccounts).sort();
+
+  accounts.forEach(account => {
+    const used = seatData[account] || 0;
+    const left = MAX_SEATS - used;
+    const isFull = left <= 0;
+
+    const row = document.createElement('div');
+    row.className = 'seat-account' + (isFull ? ' full' : '');
+    row.dataset.account = account;
+
+    let dots = '';
+    for (let i = 0; i < MAX_SEATS; i++) {
+      dots += `<div class="seat-dot ${i < used ? '' : 'empty'}"></div>`;
+    }
+
+    const countClass = isFull ? 'red' : left === 1 ? 'warn' : '';
+    const countLabel = isFull ? 'FULL' : `${left}/5`;
+
+    row.innerHTML = `
+      <span class="seat-email">${account}</span>
+      <div class="seat-dots">${dots}</div>
+      <span class="seat-count ${countClass}">${countLabel}</span>
+    `;
+
+    if (!isFull) {
+      row.addEventListener('click', () => {
+        wrap.querySelectorAll('.seat-account').forEach(r => r.classList.remove('selected'));
+        row.classList.add('selected');
+        selectedAccount = account;
+      });
+    }
+
+    wrap.appendChild(row);
+  });
+
+  // Mutual
+  const mutualRow = document.createElement('div');
+  mutualRow.className = 'mutual-row';
+  mutualRow.innerHTML = `
+    <div class="mutual-label">Mutual <span style="opacity:0.5;font-size:9px;">optional</span></div>
+    <input type="text" class="mutual-input" id="mutual-input" placeholder="e.g. gym group, family, work..." />
+  `;
+  wrap.appendChild(mutualRow);
+
+  // Log button
+  const logBtn = document.createElement('button');
+  logBtn.className = 'log-btn';
+  logBtn.textContent = '↗ Log to Sheet';
+  logBtn.addEventListener('click', () => logToSheet(logBtn));
+  wrap.appendChild(logBtn);
+
+  return wrap;
+}
+
+async function logToSheet(btn) {
+  if (!selectedAccount) {
+    const orig = { text: btn.textContent, border: btn.style.borderColor, color: btn.style.color, bg: btn.style.background };
+    btn.textContent = '← Pick a TiviMate account first';
+    btn.style.cssText = 'border-color:rgba(255,95,87,0.3);color:var(--red);background:var(--red-dim);';
+    setTimeout(() => {
+      btn.textContent = '↗ Log to Sheet';
+      btn.style.cssText = '';
+    }, 2000);
+    return;
+  }
+
+  const mutual = document.getElementById('mutual-input')?.value.trim() || '';
+  btn.disabled = true;
+  btn.textContent = 'Logging…';
+
+  const payload = {
+    client_name: pendingComplete.client_name,
+    package: pendingComplete.package,
+    start_date: pendingComplete.start_date,
+    expiry_date: pendingComplete.expiry_date,
+    mac_address: pendingComplete.mac_address,
+    tivimate_account: selectedAccount,
+    mutual
+  };
+
+  try {
+    await fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    // Optimistically update local count
+    seatData[selectedAccount] = (seatData[selectedAccount] || 0) + 1;
+
+    btn.textContent = '✓ Logged successfully';
+    btn.style.cssText = 'border-color:rgba(0,229,137,0.3);color:var(--accent);background:var(--accent-dim);';
+
+    addBot(`✓ <strong>${pendingComplete.client_name}</strong> logged under <strong>${selectedAccount}</strong>.`);
+    pendingComplete = null;
+    selectedAccount = null;
+
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = '↗ Log to Sheet';
+    addBot('Sheet log failed. Error: ' + e.message);
+  }
 }
 
 function calcExpiry(dateStr, months) {
