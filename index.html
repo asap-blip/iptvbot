@@ -495,7 +495,7 @@ function setMode(m) {
   document.getElementById('tab-order').className = 'tab' + (m === 'order' ? ' active' : '');
   document.getElementById('tab-complete').className = 'tab' + (m === 'complete' ? ' active' : '');
   document.getElementById('input').placeholder = m === 'order'
-    ? 'e.g. dylan v english 3 months'
+    ? 'e.g. FIRST NAME // LAST NAME // PACKAGE // TIME'
     : 'Paste the Order Completed message here';
   addBot(
     m === 'order' ? 'Ready. Type a new order loosely.' : 'Paste the completed order from your provider.',
